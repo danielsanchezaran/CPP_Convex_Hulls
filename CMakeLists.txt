@@ -6,8 +6,9 @@ find_package(Threads REQUIRED)
 
 include_directories( ./include ./src ./apps ./3rdParty)
  
-add_executable (point_test ./tests/point_test.cpp)
-add_executable (matrix_test ./tests/matrix_test.cpp)
+add_executable (point_test ./tests/point_test.cpp ./src/convex_hull.cpp)
+add_executable (line_test ./tests/line_test.cpp ./src/convex_hull.cpp)
+add_executable (matrix_test ./tests/matrix_test.cpp ./src/convex_hull.cpp)
 add_executable (convex_hull_test ./tests/convex_hull_test.cpp ./src/convex_hull.cpp)
 
 add_executable (app ./apps/app.cpp ./src/convex_hull.cpp)
