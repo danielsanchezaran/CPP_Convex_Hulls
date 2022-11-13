@@ -40,26 +40,31 @@ int main()
     ConvexHull C2(vertex2, 0);
     std::vector<Point> vertex3;
     ConvexHull interC(vertex, 0);
-    std::cout << "they intersect: " << getIntersectingPolygon(C, C2, interC) << "\n";
-    for (Point p : interC.apex)
+    bool intersection = getIntersectingPolygon(C, C2, interC);
+    std::cout << "they intersect: " << intersection << "\n";
+    std::cout << "inner polygon is: \n";
+    if (intersection)
     {
-        std::cout << p << "\n";
+        for (Point p : interC.apex)
+        {
+            std::cout << p << "\n";
+        }
     }
 
-    // Point Pin(0, 0);
-    // Point Pout(1, 1);
-    // Point P3_(0.5, 0);
-    // Point P4_(0.5, 1);
+    Point Pin(0, 0);
+    Point Pout(1, 1);
+    Point P3_(0.5, 0);
+    Point P4_(0.5, 1);
 
-    // std::cout << "Pin Inside " << C.isPointInside(Pin) << "\n";
-    // std::cout << "Pout Inside " << C.isPointInside(Pout) << "\n";
+    std::cout << "Pin Inside " << C.isPointInside(Pin) << "\n";
+    std::cout << "Pout Inside " << C.isPointInside(Pout) << "\n";
 
-    // Line L1(Pin, Pout);
-    // Line L2(P3_, P4_);
-    // Point inter;
-    // double eps = 0.00001;
-    // std::cout << "intersect: " << segmentsIntersect(L1, L2, inter, eps) << "\n";
-    // std::cout << "inter point " << inter << "\n";
+    Line L1(Pin, Pout);
+    Line L2(P3_, P4_);
+    Point inter;
+    double eps = 0.00001;
+    std::cout << "intersect: " << segmentsIntersect(L1, L2, inter, eps) << "\n";
+    std::cout << "inter point " << inter << "\n";
 
     return 0;
 }
