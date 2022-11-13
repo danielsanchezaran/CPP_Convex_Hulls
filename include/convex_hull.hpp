@@ -42,6 +42,11 @@ public:
     }
 };
 
+class Line
+{
+    Point p1, p2;
+};
+
 class Matrix
 {
 public:
@@ -101,6 +106,7 @@ public:
     \return convex hull area (double)
     **/
     double getArea();
+    bool isPointInside(Point& P);
 
 private:
     void computeArea();
@@ -108,6 +114,16 @@ private:
 
 using json = nlohmann::json;
 
-std::vector<ConvexHull> convexHullFromJson(json data);
+/**
+  Reads a Json file with convexHull information and stores the data in a vector of ConvexHull class
+  \return vector of ConvexHull
+  **/
+std::vector<ConvexHull> convexHullsFromJson(json data);
+
+/**
+    This Function uses the ray-casting algorithm to decide whether the point is inside
+    the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm
+*/
+bool PointInPolygon(std::vector<Point> const &vertices, Point& P);
 
 #endif //  CONVEX_HULL_HPP_

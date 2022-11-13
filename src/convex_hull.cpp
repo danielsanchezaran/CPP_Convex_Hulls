@@ -26,7 +26,7 @@ void ConvexHull::computeArea()
 
 double ConvexHull::getArea() { return area; }
 
-std::vector<ConvexHull> convexHullFromJson(json data)
+std::vector<ConvexHull> convexHullsFromJson(json data)
 {
     int n_hulls = data["convex hulls"].size();
     std::vector<ConvexHull> convex_hull_v;
@@ -49,4 +49,41 @@ std::vector<ConvexHull> convexHullFromJson(json data)
         convex_hull_v.push_back(c);
     }
     return convex_hull_v;
+}
+
+bool ConvexHull::isPointInside(Point &P){
+    return PointInPolygon(apex,P);
+}
+
+bool PointInPolygon(std::vector<Point> const &vertices, Point& P)
+{
+    int n_vertices = vertices.size();
+    int i, j;
+    bool inside = false;
+    // looping for all the edges
+    for (i = 0; i < n_vertices; ++i)
+    {
+        int j = (i + 1) % n_vertices;
+
+        // The vertices of the edge we are checking.
+        double xp0 = vertices[i].x;
+        double yp0 = vertices[i].y;
+        double xp1 = vertices[j].x;
+        double yp1 = vertices[j].y;
+
+        // Check whether the edge intersects a line from (-inf,P.y) to (P.x,P.y).
+
+        // First check if the line crosses the horizontal line at P.y in either direction.
+        if ((yp0 <= P.y) && (yp1 > P.y) || (yp1 <= P.y) && (yp0 > P.y))
+        {
+            // If so, get the point where it crosses that line. Note that we can't get a division by zero here -
+            // if yp1 == yp0 then the above condition is false.
+            double cross = (xp1 - xp0) * (P.y - yp0) / (yp1 - yp0) + xp0;
+
+            // Finally check if it crosses to the left of our test point.
+            if (cross < P.x)
+                inside = !inside;
+        }
+    }
+    return inside;
 }
