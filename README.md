@@ -1,3 +1,6 @@
+The code follows the Google C++ Style guide
+
+
 HOW TO COMPILE:
     Requirements: 
         CMake >= 3.14
