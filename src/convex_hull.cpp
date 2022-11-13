@@ -211,3 +211,34 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
     Intersection.set_apexes(insideVertices);
     return true;
 }
+
+std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &input, double overlapping_percent)
+{
+    // Use a vector to keep track of which C Hulls should remain
+    std::vector<bool> remaining_convex_hulls(input.size(), true);
+    std::vector<ConvexHull> output;
+    output.reserve(input.size());
+    for (int i = 0; i < input.size() - 1; ++i)
+    {
+        for (int j = i + 1; j < input.size(); ++j)
+        {
+            ConvexHull intersection;
+            bool c_hulls_intersect = getIntersectingPolygon(input[i], input[j], intersection);
+            if (c_hulls_intersect)
+            {
+                std::cout << "intersect chull\n";
+                if (intersection.getArea() > overlapping_percent * input[i].getArea())
+                    remaining_convex_hulls[i] = false;
+                if (intersection.getArea() > overlapping_percent * input[j].getArea())
+                    remaining_convex_hulls[j] = false;
+            }
+        }
+    }
+
+    for (int i = 0; i < remaining_convex_hulls.size(); ++i)
+    {
+        if (remaining_convex_hulls[i])
+            output.push_back(input[i]);
+    }
+    return output;
+}

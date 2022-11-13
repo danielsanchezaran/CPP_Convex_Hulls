@@ -17,6 +17,13 @@ int main()
     convex_hull_v = convexHullsFromJson(data);
     std::cout << convex_hull_v[0].apex[0] << "\n";
 
+    double overlap = 0.5001;
+    std::vector<ConvexHull> output = eliminateOverlappingCHulls(convex_hull_v, overlap);
+
+    for (int i = 0; i < output.size();++i){
+        std::cout << "Chull ID " << output[i].id <<"\n";
+    }
+
     std::vector<Point> vertex;
     Point P1(-1, -1);
     Point P2(-1, 1);

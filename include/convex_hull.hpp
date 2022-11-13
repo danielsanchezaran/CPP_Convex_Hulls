@@ -176,4 +176,7 @@ bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
 bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon);
 
 bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection);
+
+std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &input, double overlapping_percent);
+
 #endif //  CONVEX_HULL_HPP_
