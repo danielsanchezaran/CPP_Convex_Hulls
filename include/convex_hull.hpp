@@ -6,6 +6,7 @@
 #include <ostream>
 #include <iostream>
 #include <assert.h>
+#include <cstdlib>
 #include <json.hpp>
 
 class Point
@@ -18,6 +19,14 @@ public:
     {
         x = P.x;
         y = P.y;
+    }
+
+    Point operator*(const double &scalar)
+    {
+        Point res;
+        res.x = x * scalar;
+        res.y = y * scalar;
+        return res;
     }
 
     Point operator+(const Point &P)
@@ -44,7 +53,9 @@ public:
 
 class Line
 {
+public:
     Point p1, p2;
+    Line(Point p1_, Point p2_) : p1(p1_), p2(p2_){};
 };
 
 class Matrix
@@ -96,6 +107,8 @@ class ConvexHull
 {
 public:
     std::vector<Point> apex;
+    std::vector<Line> line_segments;
+
     double area;
     int id;
     ConvexHull();
@@ -106,10 +119,13 @@ public:
     \return convex hull area (double)
     **/
     double getArea();
-    bool isPointInside(Point& P);
+    int getNvertices();
+    int getNSegments();
+    bool isPointInside(Point &P);
 
 private:
     void computeArea();
+    void computeLineSegments();
 };
 
 using json = nlohmann::json;
@@ -125,6 +141,8 @@ std::vector<ConvexHull> convexHullsFromJson(json data);
     the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm.
     For this implementation, the ray goes in the -x direction, from P(x,y) to P(-inf,y)
 */
-bool PointInPolygon(std::vector<Point> const &vertices, Point& P);
+bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
+
+bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double epsilon);
 
 #endif //  CONVEX_HULL_HPP_

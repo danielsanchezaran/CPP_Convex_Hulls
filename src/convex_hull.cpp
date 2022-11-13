@@ -4,6 +4,7 @@ ConvexHull::ConvexHull(std::vector<Point> const &apex_, int id_) : apex(apex_), 
 {
     assert(apex.size() >= 3);
     computeArea();
+    computeLineSegments();
 }
 
 ConvexHull::ConvexHull() {}
@@ -24,7 +25,20 @@ void ConvexHull::computeArea()
         area *= -1.;
 }
 
+void ConvexHull::computeLineSegments()
+{
+    line_segments.reserve(apex.size());
+
+    for (int i = 0; i < apex.size() - 1; ++i)
+    {
+        Line segment(apex[i], apex[i + 1]);
+        line_segments.push_back(segment);
+    }
+}
+
 double ConvexHull::getArea() { return area; }
+int ConvexHull::getNvertices() { return apex.size(); }
+int ConvexHull::getNSegments() { return line_segments.size(); }
 
 std::vector<ConvexHull> convexHullsFromJson(json data)
 {
@@ -45,17 +59,18 @@ std::vector<ConvexHull> convexHullsFromJson(json data)
             apexes.push_back(p);
         }
         int id = data["convex hulls"][n]["ID"];
-        ConvexHull c(apexes,id);
+        ConvexHull c(apexes, id);
         convex_hull_v.push_back(c);
     }
     return convex_hull_v;
 }
 
-bool ConvexHull::isPointInside(Point &P){
-    return PointInPolygon(apex,P);
+bool ConvexHull::isPointInside(Point &P)
+{
+    return pointInPolygon(apex, P);
 }
 
-bool PointInPolygon(std::vector<Point> const &vertices, Point& P)
+bool pointInPolygon(std::vector<Point> const &vertices, Point &P)
 {
     int n_vertices = vertices.size();
     int i, j;
@@ -86,4 +101,75 @@ bool PointInPolygon(std::vector<Point> const &vertices, Point& P)
         }
     }
     return inside;
+}
+
+bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon)
+{
+    float ax = L1.p2.x - L1.p1.x; // direction of line a
+    float ay = L1.p2.y - L1.p1.y; // ax and ay as above
+
+    float bx = L2.p1.x - L2.p2.x; // direction of line b, reversed
+    float by = L2.p1.y - L2.p2.y; // really -by and -by as above
+
+    float dx = L2.p1.x - L1.p1.x; // right-hand side
+    float dy = L2.p1.y - L1.p1.y;
+
+    double det = ax * by - ay * bx;
+
+    // floating point error forces us to use a non zero, small epsilon
+    if (std::abs(det) < epsilon)
+    { // lines are parallel, they could be collinear, but in that case,  we dont care since the points will be inside
+      //  the polygon and detected by pointInPolygon function
+
+        return false; // not collinear and parallel
+    }
+
+    double t = (dx * by - dy * bx) / det;
+    double u = (ax * dy - ay * dx) / det;
+
+    bool intersect = !(t < 0 || t > 1 || u < 0 || u > 1); // if both t and u between 0 and 1, the segements intersect
+
+    if (intersect)
+    {
+        intersect_point = L1.p1 + (L1.p2 - L1.p1) * t;
+    }
+
+    return intersect;
+}
+
+bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection)
+{
+    std::vector<Point> insideVertices;
+    int n_vert_C1 = C1.getNvertices();
+    int n_vert_C2 = C2.getNvertices();
+
+    int n_segment_C1 = C1.getNSegments();
+    int n_segment_C2 = C2.getNSegments();
+
+    insideVertices.reserve(n_vert_C1 + n_vert_C2);
+
+    // Check which apexes of Convexhull1 (if any) are inside convexhull2
+    for (int i = 0; i < n_vert_C1; ++i)
+    {
+        if (C2.isPointInside(C1.apex[i]))
+            insideVertices.push_back(C1.apex[i]);
+    }
+    // Check which apexes of Convexhull2 (if any) are inside convexhull1
+    for (int i = 0; i < n_vert_C2; ++i)
+    {
+        if (C1.isPointInside(C2.apex[i]))
+            insideVertices.push_back(C2.apex[i]);
+    }
+
+    // Check if the line segments connecting each apex of each convexhull, happen to intersect
+    for (int i = 0; i < n_segment_C1; ++i)
+    {
+        for (int j = 0; j < n_segment_C2; ++j)
+        {
+            Point Intersection;
+            bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, 0.0001);
+            if (segments_intersect)
+                insideVertices.push_back(Intersection);
+        }
+    }
 }
