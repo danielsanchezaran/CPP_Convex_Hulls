@@ -6,6 +6,7 @@
 #include <ostream>
 #include <iostream>
 #include <assert.h>
+#include <json.hpp>
 
 class Point
 {
@@ -89,19 +90,24 @@ public:
 class ConvexHull
 {
 public:
-    std::vector<Point> vertex;
+    std::vector<Point> apex;
     double area;
     int id;
     ConvexHull();
-    ConvexHull(std::vector<Point> const &vertex_, int id_);
+    ConvexHull(std::vector<Point> const &apex_, int id_);
     /**
     Area of convex polygon computed following this https://byjus.com/maths/convex-polygon/
     We compute and add the area of the inner triangles of the polygon
+    \return convex hull area (double)
     **/
     double getArea();
 
 private:
     void computeArea();
 };
+
+using json = nlohmann::json;
+
+std::vector<ConvexHull> convexHullFromJson(json data);
 
 #endif //  CONVEX_HULL_HPP_
