@@ -56,6 +56,7 @@ class Line
 public:
     Point p1, p2;
     Line(Point p1_, Point p2_) : p1(p1_), p2(p2_){};
+    Line(){};
 };
 
 class Matrix
@@ -143,6 +144,6 @@ std::vector<ConvexHull> convexHullsFromJson(json data);
 */
 bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
 
-bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double epsilon);
+bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon);
 
 #endif //  CONVEX_HULL_HPP_

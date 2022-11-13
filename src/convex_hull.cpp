@@ -167,7 +167,8 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
         for (int j = 0; j < n_segment_C2; ++j)
         {
             Point Intersection;
-            bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, 0.0001);
+            double eps = 0.0001;
+            bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, eps);
             if (segments_intersect)
                 insideVertices.push_back(Intersection);
         }
