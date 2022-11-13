@@ -122,7 +122,8 @@ std::vector<ConvexHull> convexHullsFromJson(json data);
 
 /**
     This Function uses the ray-casting algorithm to decide whether the point is inside
-    the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm
+    the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm.
+    For this implementation, the ray goes in the -x direction, from P(x,y) to P(-inf,y)
 */
 bool PointInPolygon(std::vector<Point> const &vertices, Point& P);
 
