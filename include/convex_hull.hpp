@@ -1,6 +1,12 @@
 // This code follows the Google C++ Style guide
+#ifndef CONVEX_HULL_HPP_
+#define CONVEX_HULL_HPP_
+
 #include <vector>
 #include <ostream>
+#include <iostream>
+#include <assert.h>
+
 class Point
 {
 public:
@@ -83,10 +89,19 @@ public:
 class ConvexHull
 {
 public:
-    explicit ConvexHull(const std::vector<Point> &vertex_);
-    // Area of convex polygon https://byjus.com/maths/convex-polygon/
-    void computeArea();
-    double getArea();
     std::vector<Point> vertex;
     double area;
+    int id;
+    ConvexHull();
+    ConvexHull(std::vector<Point> const &vertex_, int id_);
+    /**
+    Area of convex polygon computed following this https://byjus.com/maths/convex-polygon/
+    We compute and add the area of the inner triangles of the polygon
+    **/
+    double getArea();
+
+private:
+    void computeArea();
 };
+
+#endif //  CONVEX_HULL_HPP_
