@@ -8,17 +8,36 @@
 #include <assert.h>
 #include <cstdlib>
 #include <json.hpp>
+#include <cmath>
 
 class Point
 {
 public:
-    double x, y;
-    Point(){};
-    Point(double x_, double y_) : x(x_), y(y_){};
+    double x, y, angle;
+    Point() : x(0), y(0), angle(0) {}
+    Point(double x_, double y_) : x(x_), y(y_) { computeAngle(); }
+
+    // get angle between this point and another
+    double get_angle(Point &P)
+    {
+        // check to make sure the angle won't be "0"
+        if (P.x == x)
+        {
+            return 0;
+        }
+
+        return (atan((P.y - y) / (P.x - x)));
+    }
+    void set_angle(double d) { angle = d; }
+    void computeAngle()
+    {
+        angle = std::atan2(y, x);
+    }
     void operator=(const Point &P)
     {
         x = P.x;
         y = P.y;
+        angle = P.angle;
     }
 
     Point operator*(const double &scalar)
@@ -34,6 +53,7 @@ public:
         Point res;
         res.x = x + P.x;
         res.y = y + P.y;
+        res.computeAngle();
         return res;
     }
 
@@ -42,8 +62,16 @@ public:
         Point res;
         res.x = x - P.x;
         res.y = y - P.y;
+        res.computeAngle();
         return res;
     }
+    // for sorting based on angles
+
+    bool operator<(const Point &p) const
+    {
+        return (angle < p.angle);
+    }
+
     friend std::ostream &operator<<(std::ostream &stream, const Point &P)
     {
         stream << "(" << P.x << ", " << P.y << ")";
@@ -120,6 +148,7 @@ public:
     \return convex hull area (double)
     **/
     double getArea();
+    void set_apexes(std::vector<Point> const &apex_);
     int getNvertices();
     int getNSegments();
     bool isPointInside(Point &P);
@@ -146,4 +175,5 @@ bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
 
 bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon);
 
+bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection);
 #endif //  CONVEX_HULL_HPP_

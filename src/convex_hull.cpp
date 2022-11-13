@@ -34,6 +34,8 @@ void ConvexHull::computeLineSegments()
         Line segment(apex[i], apex[i + 1]);
         line_segments.push_back(segment);
     }
+    Line segment(apex[apex.size() - 1], apex[0]);
+    line_segments.push_back(segment);
 }
 
 double ConvexHull::getArea() { return area; }
@@ -68,6 +70,14 @@ std::vector<ConvexHull> convexHullsFromJson(json data)
 bool ConvexHull::isPointInside(Point &P)
 {
     return pointInPolygon(apex, P);
+}
+
+void ConvexHull::set_apexes(std::vector<Point> const &apex_)
+{
+    apex = apex_;
+    assert(apex.size() >= 3);
+    computeArea();
+    computeLineSegments();
 }
 
 bool pointInPolygon(std::vector<Point> const &vertices, Point &P)
@@ -152,25 +162,52 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
     for (int i = 0; i < n_vert_C1; ++i)
     {
         if (C2.isPointInside(C1.apex[i]))
+        {
             insideVertices.push_back(C1.apex[i]);
+        }
     }
     // Check which apexes of Convexhull2 (if any) are inside convexhull1
     for (int i = 0; i < n_vert_C2; ++i)
     {
         if (C1.isPointInside(C2.apex[i]))
+        {
             insideVertices.push_back(C2.apex[i]);
+        }
     }
 
     // Check if the line segments connecting each apex of each convexhull, happen to intersect
     for (int i = 0; i < n_segment_C1; ++i)
     {
+
         for (int j = 0; j < n_segment_C2; ++j)
         {
             Point Intersection;
             double eps = 0.0001;
+
             bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, eps);
             if (segments_intersect)
+            {
                 insideVertices.push_back(Intersection);
+            }
         }
     }
+
+    if (insideVertices.size() < 3)
+        return false; // intersect polygon requires 3 vertices to exist
+
+    // Now we have the points that make the intersection of two convexhulls, we need to organize them CCW
+    Point center(0, 0); //  We make a pivot to check angles against
+
+    // sort all points by polar angle
+    for (Point &p : insideVertices)
+    {
+        double angle = center.get_angle(p);
+        p.set_angle(angle);
+    }
+
+    // sort the points using overloaded < operator
+    // this program sorts them counterclockwise;
+    std::sort(insideVertices.begin(), insideVertices.end());
+    Intersection.set_apexes(insideVertices);
+    return true;
 }
