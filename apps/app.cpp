@@ -17,7 +17,7 @@ int main()
     convex_hull_v = convexHullsFromJson(data);
     std::cout << convex_hull_v[0].apex[0] << "\n";
 
-    double overlap = 0.5001;
+    double overlap = 0.5;
     std::vector<ConvexHull> output = eliminateOverlappingCHulls(convex_hull_v, overlap);
 
     for (int i = 0; i < output.size();++i){
