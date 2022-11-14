@@ -26,7 +26,7 @@ public:
             return 0;
         }
 
-        return (atan((P.y - y) / (P.x - x)));
+        return (std::atan2((P.y - y) , (P.x - x)));
     }
     void set_angle(double d) { angle = d; }
     void computeAngle()

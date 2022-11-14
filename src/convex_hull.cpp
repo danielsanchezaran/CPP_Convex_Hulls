@@ -11,6 +11,7 @@ ConvexHull::ConvexHull() {}
 
 void ConvexHull::computeArea()
 {
+    area = 0;
     Matrix apexMatrix;
     apexMatrix = Matrix(apex[apex.size() - 1], apex[0]);
     area = apexMatrix.getDeterminant();
@@ -21,8 +22,8 @@ void ConvexHull::computeArea()
     }
 
     area = 0.5 * area;
-    if (area < 0)
-        area *= -1.;
+    if (area < 0) area *= -1.;
+
 }
 
 void ConvexHull::computeLineSegments()
@@ -38,7 +39,11 @@ void ConvexHull::computeLineSegments()
     line_segments.push_back(segment);
 }
 
-double ConvexHull::getArea() { return area; }
+double ConvexHull::getArea()
+{
+    computeArea();
+    return area;
+}
 int ConvexHull::getNvertices() { return apex.size(); }
 int ConvexHull::getNSegments() { return line_segments.size(); }
 
@@ -60,6 +65,7 @@ std::vector<ConvexHull> convexHullsFromJson(json data)
             Point p(x, y);
             apexes.push_back(p);
         }
+
         int id = data["convex hulls"][n]["ID"];
         ConvexHull c(apexes, id);
         convex_hull_v.push_back(c);
@@ -182,7 +188,7 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
         for (int j = 0; j < n_segment_C2; ++j)
         {
             Point Intersection;
-            double eps = 0.0001;
+            double eps = 0.00001;
 
             bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, eps);
             if (segments_intersect)
@@ -196,7 +202,7 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
         return false; // intersect polygon requires 3 vertices to exist
 
     // Now we have the points that make the intersection of two convexhulls, we need to organize them CCW
-    Point center(0, 0); //  We make a pivot to check angles against
+    Point center = insideVertices[0]; //  We make a pivot to check angles against
 
     // sort all points by polar angle
     for (Point &p : insideVertices)
@@ -226,7 +232,7 @@ std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &inpu
             bool c_hulls_intersect = getIntersectingPolygon(input[i], input[j], intersection);
             if (c_hulls_intersect)
             {
-                std::cout << "intersect chull\n";
+               
                 if (intersection.getArea() > overlapping_percent * input[i].getArea())
                     remaining_convex_hulls[i] = false;
                 if (intersection.getArea() > overlapping_percent * input[j].getArea())
