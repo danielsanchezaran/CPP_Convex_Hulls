@@ -183,19 +183,19 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
 
 std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2)
 {
-    std::vector<Point> insideVertices;
+    std::vector<Point> intersectionVertices;
     int n_vert_C1 = C1.getNvertices();
     int n_vert_C2 = C2.getNvertices();
     int n_segment_C1 = C1.getNSegments();
     int n_segment_C2 = C2.getNSegments();
 
-    insideVertices.reserve(n_vert_C1 + n_vert_C2);
+    intersectionVertices.reserve(n_vert_C1 + n_vert_C2);
     // Check which apexes of Convexhull1 (if any) are inside convexhull2
     for (int i = 0; i < n_vert_C1; ++i)
     {
         if (C2.isPointInside(C1.apex[i]))
         {
-            insideVertices.push_back(C1.apex[i]);
+            intersectionVertices.push_back(C1.apex[i]);
         }
     }
     // Check which apexes of Convexhull2 (if any) are inside convexhull1
@@ -203,7 +203,7 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2
     {
         if (C1.isPointInside(C2.apex[i]))
         {
-            insideVertices.push_back(C2.apex[i]);
+            intersectionVertices.push_back(C2.apex[i]);
         }
     }
     // Check if the line segments connecting each apex of each convexhull, happen to intersect
@@ -217,11 +217,12 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2
             bool segments_intersect = segmentsIntersect(C1.line_segments[i], C2.line_segments[j], Intersection, eps);
             if (segments_intersect)
             {
-                insideVertices.push_back(Intersection);
+                // If the segments intersect, they create a Vertex for the intersection polygon
+                intersectionVertices.push_back(Intersection);
             }
         }
     }
-    return insideVertices;
+    return intersectionVertices;
 }
 
 void sortPointsCCW(std::vector<Point>& point_vector)
@@ -242,15 +243,15 @@ void sortPointsCCW(std::vector<Point>& point_vector)
 
 bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection)
 {
-    std::vector<Point> insideVertices = getIntersectionPolygonVertices(C1, C2);
+    std::vector<Point> intersectionVertices = getIntersectionPolygonVertices(C1, C2);
 
-    if (insideVertices.size() < 3)
+    if (intersectionVertices.size() < 3)
         return false; // intersect polygon requires 3 vertices to exist
 
     // Now we have the points that make the intersection of two convexhulls, we need to organize them CCW
-    sortPointsCCW(insideVertices);
+    sortPointsCCW(intersectionVertices);
     // Add Points to the C. Hull 
-    Intersection.set_apexes(insideVertices);
+    Intersection.set_apexes(intersectionVertices);
     return true;
 }
 
@@ -266,9 +267,11 @@ std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &inpu
         {
             ConvexHull intersection;
             bool c_hulls_intersect = getIntersectingPolygon(input[i], input[j], intersection);
+            // For each C. Hull check for overlapping with the remaining C. Hulls
             if (c_hulls_intersect)
             {
-
+                // If the overlapping area is larger that the desired percent, tag the index to be eliminated.
+                // this check is done for both C. Hulls
                 if (intersection.getArea() > overlapping_percent * input[i].getArea())
                     remaining_convex_hulls[i] = false;
                 if (intersection.getArea() > overlapping_percent * input[j].getArea())
@@ -276,7 +279,7 @@ std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &inpu
             }
         }
     }
-
+    // Store the convex hulls that should remain, ignoring the rest.
     for (int i = 0; i < remaining_convex_hulls.size(); ++i)
     {
         if (remaining_convex_hulls[i])

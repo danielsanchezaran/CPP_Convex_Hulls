@@ -229,8 +229,8 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2
 bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection);
 
 /**
-* Compute and find the vertices from each polygon/c. hull that is contained in the other polygon (Vertices A, C, D on the attached image)
-* Compute and find the intersection points between each polygon (Verties B, E on the attached image)
+* Compute and find the vertices from each polygon/c. hull that is contained in the other polygon
+* Compute and find the intersection points between each polygon 
 * Compute the Polygon shaped by these vertices by ordering them CCW.
 * A Polygon is tagged as "to be eliminated" if the resulting intersection polygon has an area that is greater than the input overlapping_percent of the Polygon area.
 * @param input: Vector of Convex Hulls.
