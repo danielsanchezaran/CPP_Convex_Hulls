@@ -17,7 +17,8 @@ public:
     Point() : x(0), y(0), angle(0) {}
     Point(double x_, double y_) : x(x_), y(y_) { computeAngle(); }
 
-    // get angle between this point and another
+    // get angle between this point and another.
+    // Will be used to organize points CCW
     double get_angle(Point &P)
     {
         // check to make sure the angle won't be "0"
@@ -32,6 +33,12 @@ public:
     void computeAngle()
     {
         angle = std::atan2(y, x);
+    }
+
+    // for sorting based on angles
+    bool operator<(const Point &p) const
+    {
+        return (angle < p.angle);
     }
 
     Point operator*(const double &scalar)
@@ -58,12 +65,6 @@ public:
         res.y = y - P.y;
         res.computeAngle();
         return res;
-    }
-    // for sorting based on angles
-
-    bool operator<(const Point &p) const
-    {
-        return (angle < p.angle);
     }
 
     Point(const Point &other) = default;
@@ -138,21 +139,36 @@ public:
     int id;
     ConvexHull();
     ConvexHull(std::vector<Point> const &apex_, int id_);
-    /**
-    Area of convex polygon computed following this https://byjus.com/maths/convex-polygon/
-    We compute and add the area of the inner triangles of the polygon
-    \return convex hull area (double)
-    **/
-    double getArea();
-    void set_apexes(std::vector<Point> const &apex_);
-    int getNvertices();
-    int getNSegments();
-    bool isPointInside(Point &P);
     ConvexHull(const ConvexHull &other) = default;
     ConvexHull &operator=(const ConvexHull &other) = default;
 
+    double getArea();
+
+    int getNvertices();
+    int getNSegments();
+
+    /**
+     * Fill an empty convex hull with its apexes.
+     * @param apex_: Vector of points (C. Hull vertices ordered CCW)
+     **/
+    void set_apexes(std::vector<Point> const &apex_);
+
+    /**
+     * Uses the Ray casting algorithm: https://en.wikipedia.org/wiki/Point_in_polygon to
+     * determine if a Point is inside this Convex Hull
+     **/
+    bool isPointInside(Point &P);
+
 private:
+    /**
+        * Area of convex polygon computed following this approach https://byjus.com/maths/convex-polygon/
+        * We compute and add the area of the inner triangles of the c. hull to get its total area.
+       \return convex hull area (double)
+    **/
     void computeArea();
+    /**
+     * Fills an internal class member: line_segments with the lines or "edges" conecting each polygon vertex
+     */
     void computeLineSegments();
 };
 
@@ -170,17 +186,57 @@ json convexHullsToJson(std::vector<ConvexHull> c_hull_vector);
     This Function uses the ray-casting algorithm to decide whether the point is inside
     the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm.
     For this implementation, the ray goes in the -x direction, from P(x,y) to P(-inf,y)
+    @param vertices: Vertices of the Polygon. vector of Points.
+    @param P: The Point that is being tested.
+    @return true or false
 */
 bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
 
+/**
+ * Check if two Line segments insertect
+ *@param vertices: Vertices of the Polygon
+ *@param L1: First Line Segment to test.
+ *@param L2: Second Line Segment to test.
+ *@param intersect_point: The intersection point data (if it exists) will be copied here.
+ *@param epsilon: The tolerance used when comparing floating point substraction results to 0
+ *@return true or false
+ */
 bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon);
 
+/**
+ * Sorts a vector of Points CCW by setting one Point as "center", and checking the angle difference between said point and the rest.
+ * The points are then arranged based on the pair-wise angle different between each point and the "Center".
+ * @param point_vector: Vector of points to sort CCW
+ */
 void sortPointsCCW(std::vector<Point> &point_vector);
 
+/**
+ * If two polygons intersect, returns a non-ordered list of vertices corresponding to the polygon formed by the intersection of the
+ *  two original polygons
+ * @param C1: Convex Hull to check for intersection.
+ * @param C2: Convex Hull to check for intersection.
+ * @returns
+ */
 std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2);
 
+/**
+ * If two polygons intersect, stores the corresponding polygon created by the intersection
+ * @param C1: Convex Hull to check for intersection.
+ * @param C2: Convex Hull to check for intersection.
+ * @param Intersection: Intersecting polygon (if it exists) data is stored here
+ * @returns true or false, f the polygons intersect or not
+ */
 bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection);
 
+/**
+* Compute and find the vertices from each polygon/c. hull that is contained in the other polygon (Vertices A, C, D on the attached image)
+* Compute and find the intersection points between each polygon (Verties B, E on the attached image)
+* Compute the Polygon shaped by these vertices by ordering them CCW.
+* A Polygon is tagged as "to be eliminated" if the resulting intersection polygon has an area that is greater than the input overlapping_percent of the Polygon area.
+* @param input: Vector of Convex Hulls.
+* @param overlapping_percent: How much % of the overlaped area of a polygon is necessary to consider it "eliminated"
+* @returns Vector of remaining polygons/C. Hulls.
+*/
 std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &input, double overlapping_percent);
 
 #endif //  CONVEX_HULL_HPP_
