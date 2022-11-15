@@ -22,8 +22,8 @@ void ConvexHull::computeArea()
     }
 
     area = 0.5 * area;
-    if (area < 0) area *= -1.;
-
+    if (area < 0)
+        area *= -1.;
 }
 
 void ConvexHull::computeLineSegments()
@@ -125,7 +125,7 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
     float ay = L1.p2.y - L1.p1.y; // ax and ay as above
 
     float bx = L2.p1.x - L2.p2.x; // direction of line b, reversed
-    float by = L2.p1.y - L2.p2.y; // really -by and -by as above
+    float by = L2.p1.y - L2.p2.y; 
 
     float dx = L2.p1.x - L1.p1.x; // right-hand side
     float dy = L2.p1.y - L1.p1.y;
@@ -137,16 +137,18 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
     { // lines are parallel, they could be collinear, but in that case,  we dont care since the points will be inside
       //  the polygon and detected by pointInPolygon function
 
-        return false; // not collinear and parallel
+        return false; 
     }
 
     double t = (dx * by - dy * bx) / det;
     double u = (ax * dy - ay * dx) / det;
-
-    bool intersect = !(t < 0 || t > 1 || u < 0 || u > 1); // if both t and u between 0 and 1, the segements intersect
+    // if both t and u between 0 and 1, the segements intersect
+    bool intersect = !(t < 0 || t > 1 || u < 0 || u > 1);
 
     if (intersect)
     {
+        // If both lines intersect, we have the point by the equation P = P1 + (P2-P1)*t
+        // or P = P3 + (P4-P3) * u
         intersect_point = L1.p1 + (L1.p2 - L1.p1) * t;
     }
 
@@ -232,7 +234,7 @@ std::vector<ConvexHull> eliminateOverlappingCHulls(std::vector<ConvexHull> &inpu
             bool c_hulls_intersect = getIntersectingPolygon(input[i], input[j], intersection);
             if (c_hulls_intersect)
             {
-               
+
                 if (intersection.getArea() > overlapping_percent * input[i].getArea())
                     remaining_convex_hulls[i] = false;
                 if (intersection.getArea() > overlapping_percent * input[j].getArea())
