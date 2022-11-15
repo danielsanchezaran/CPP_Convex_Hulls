@@ -10,9 +10,12 @@ ConvexHull::ConvexHull(std::vector<Point> const &apex_, int id_) : apex(apex_), 
 ConvexHull::ConvexHull() {}
 
 void ConvexHull::computeArea()
-{
+{   // The inner triangles of the Polygon are added to get the areaof the polygon
+    // A formula for this is:
+    // area = 0.5 * det{([x1,x2],[y1,y2]) + ([x2,x3],[y2,y3]) + ... + ([xn,x1],[yn,y1])}
     area = 0;
     Matrix apexMatrix;
+    // The loop below ignores the Matrix ([xn,x1],[yn,y1]), so we add it manually to the sum
     apexMatrix = Matrix(apex[apex.size() - 1], apex[0]);
     area = apexMatrix.getDeterminant();
     for (int i = 0; i < apex.size() - 1; ++i)

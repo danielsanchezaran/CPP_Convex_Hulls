@@ -18,5 +18,6 @@ int main()
 
     std::ofstream file("result_convex_hulls.json");
     file << std::setw(4) << remaining_c_hulls_json << std::endl;
+    std::cout << "Done\n";
     return 0;
 }
