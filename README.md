@@ -5,12 +5,15 @@ HOW TO COMPILE:
         CMake >= 3.14
         g++ >= 9.4.0
     
-    Instructions to follow on the terminal (once inside thisproject's root folder):
+    Instructions to follow on the terminal (once inside this project's root folder):
         1) mkdir build
         2) cd build 
         3) cmake ../ 
         4) make
-        5) execute the app running ./app
+
+    To get the desired result:
+        5) execute the app running ./app (on build folder), make sure the file titled "convex_hulls.json" is in the root directory of this project
+        6) a file called result_convex_hulls.json will be created on your build folder with the remaining C.Hulls as specified by Directions.pdf
 
 ![Example](./convex_polygon_intersection.png)
 ![Example](convex_polygon_intersection.png)
