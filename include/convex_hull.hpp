@@ -10,7 +10,7 @@
 #include <json.hpp>
 #include <cmath>
 
-class Point
+struct Point
 {
 public:
     double x, y, angle;
@@ -26,18 +26,12 @@ public:
             return 0;
         }
 
-        return (std::atan2((P.y - y) , (P.x - x)));
+        return (std::atan2((P.y - y), (P.x - x)));
     }
     void set_angle(double d) { angle = d; }
     void computeAngle()
     {
         angle = std::atan2(y, x);
-    }
-    void operator=(const Point &P)
-    {
-        x = P.x;
-        y = P.y;
-        angle = P.angle;
     }
 
     Point operator*(const double &scalar)
@@ -72,6 +66,9 @@ public:
         return (angle < p.angle);
     }
 
+    Point(const Point &other) = default;
+    Point &operator=(const Point &other) = default;
+
     friend std::ostream &operator<<(std::ostream &stream, const Point &P)
     {
         stream << "(" << P.x << ", " << P.y << ")";
@@ -79,20 +76,26 @@ public:
     }
 };
 
-class Line
+struct Line
 {
 public:
     Point p1, p2;
     Line(Point p1_, Point p2_) : p1(p1_), p2(p2_){};
     Line(){};
+    Line(const Line &other) = default;
+    Line &operator=(const Line &other) = default;
 };
 
-class Matrix
+struct Matrix
 {
 public:
     double x_00, x_01, x_10, x_11;
     Matrix(){};
     Matrix(Point P1, Point P2) : x_00(P1.x), x_01(P2.x), x_10(P1.y), x_11(P2.y){};
+
+    Matrix(const Matrix &other) = default;
+    Matrix &operator=(const Matrix &other) = default;
+
     Matrix operator+(Matrix const &obj)
     {
         Matrix res;
@@ -103,13 +106,6 @@ public:
         return res;
     }
 
-    void operator=(Matrix const &obj)
-    {
-        x_00 = obj.x_00;
-        x_01 = obj.x_01;
-        x_10 = obj.x_10;
-        x_11 = obj.x_11;
-    }
     Matrix operator*(double const &scalar)
     {
         Matrix res;
@@ -152,6 +148,8 @@ public:
     int getNvertices();
     int getNSegments();
     bool isPointInside(Point &P);
+    ConvexHull(const ConvexHull &other) = default;
+    ConvexHull &operator=(const ConvexHull &other) = default;
 
 private:
     void computeArea();
@@ -166,6 +164,8 @@ using json = nlohmann::json;
   **/
 std::vector<ConvexHull> convexHullsFromJson(json data);
 
+json convexHullsToJson(std::vector<ConvexHull> c_hull_vector);
+
 /**
     This Function uses the ray-casting algorithm to decide whether the point is inside
     the given polygon. See https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm.
@@ -174,6 +174,10 @@ std::vector<ConvexHull> convexHullsFromJson(json data);
 bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
 
 bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsilon);
+
+void sortPointsCCW(std::vector<Point> &point_vector);
+
+std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2);
 
 bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection);
 

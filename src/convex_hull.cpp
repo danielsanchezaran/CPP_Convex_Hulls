@@ -73,6 +73,32 @@ std::vector<ConvexHull> convexHullsFromJson(json data)
     return convex_hull_v;
 }
 
+json convexHullsToJson(std::vector<ConvexHull> c_hull_vector)
+{
+    // Create an array-like structure to hold all convex hulls data
+    json convex_hull_array = json::array();
+    for (auto convex_hull : c_hull_vector)
+    { // To store all the data of a single c. Hull
+        json single_c_hull_data;
+        // For each convex hull there is an array of points
+        json apex_array = json::array();
+        for (auto Point : convex_hull.apex)
+        {
+            json point_pair;
+            point_pair["x"] = Point.x;
+            point_pair["y"] = Point.y;
+            apex_array.push_back(point_pair);
+        }
+        single_c_hull_data["ID"] = convex_hull.id;
+        single_c_hull_data["apexes"] = apex_array;
+        convex_hull_array.push_back(single_c_hull_data);
+    }
+
+    json output;
+    output["convex hulls"] = convex_hull_array;
+    return output;
+}
+
 bool ConvexHull::isPointInside(Point &P)
 {
     return pointInPolygon(apex, P);
@@ -125,7 +151,7 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
     float ay = L1.p2.y - L1.p1.y; // ax and ay as above
 
     float bx = L2.p1.x - L2.p2.x; // direction of line b, reversed
-    float by = L2.p1.y - L2.p2.y; 
+    float by = L2.p1.y - L2.p2.y;
 
     float dx = L2.p1.x - L1.p1.x; // right-hand side
     float dy = L2.p1.y - L1.p1.y;
@@ -137,7 +163,7 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
     { // lines are parallel, they could be collinear, but in that case,  we dont care since the points will be inside
       //  the polygon and detected by pointInPolygon function
 
-        return false; 
+        return false;
     }
 
     double t = (dx * by - dy * bx) / det;
@@ -155,17 +181,15 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point, double &epsil
     return intersect;
 }
 
-bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection)
+std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1, ConvexHull &C2)
 {
     std::vector<Point> insideVertices;
     int n_vert_C1 = C1.getNvertices();
     int n_vert_C2 = C2.getNvertices();
-
     int n_segment_C1 = C1.getNSegments();
     int n_segment_C2 = C2.getNSegments();
 
     insideVertices.reserve(n_vert_C1 + n_vert_C2);
-
     // Check which apexes of Convexhull1 (if any) are inside convexhull2
     for (int i = 0; i < n_vert_C1; ++i)
     {
@@ -182,11 +206,9 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
             insideVertices.push_back(C2.apex[i]);
         }
     }
-
     // Check if the line segments connecting each apex of each convexhull, happen to intersect
     for (int i = 0; i < n_segment_C1; ++i)
     {
-
         for (int j = 0; j < n_segment_C2; ++j)
         {
             Point Intersection;
@@ -199,23 +221,35 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersec
             }
         }
     }
+    return insideVertices;
+}
 
-    if (insideVertices.size() < 3)
-        return false; // intersect polygon requires 3 vertices to exist
-
-    // Now we have the points that make the intersection of two convexhulls, we need to organize them CCW
-    Point center = insideVertices[0]; //  We make a pivot to check angles against
+void sortPointsCCW(std::vector<Point>& point_vector)
+{
+    Point center = point_vector[0]; //  We make a pivot to check angles against
 
     // sort all points by polar angle
-    for (Point &p : insideVertices)
+    for (Point &p : point_vector)
     {
         double angle = center.get_angle(p);
         p.set_angle(angle);
     }
 
-    // sort the points using overloaded < operator
+    // sort the points using overloaded < operator from the Point struct
     // this program sorts them counterclockwise;
-    std::sort(insideVertices.begin(), insideVertices.end());
+    std::sort(point_vector.begin(), point_vector.end());
+}
+
+bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2, ConvexHull &Intersection)
+{
+    std::vector<Point> insideVertices = getIntersectionPolygonVertices(C1, C2);
+
+    if (insideVertices.size() < 3)
+        return false; // intersect polygon requires 3 vertices to exist
+
+    // Now we have the points that make the intersection of two convexhulls, we need to organize them CCW
+    sortPointsCCW(insideVertices);
+    // Add Points to the C. Hull 
     Intersection.set_apexes(insideVertices);
     return true;
 }
