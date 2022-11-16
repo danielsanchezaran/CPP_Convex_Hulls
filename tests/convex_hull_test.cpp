@@ -1,3 +1,4 @@
+// This code follows the Google C++ Style guide
 #include <convex_hull.hpp>
 #include <iostream>
 

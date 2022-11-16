@@ -1,3 +1,4 @@
+// This code follows the Google C++ Style guide
 #include <fstream>
 #include <iostream>
 
