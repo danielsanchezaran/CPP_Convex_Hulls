@@ -150,8 +150,8 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
   // floating point error forces us to use a non zero, small epsilon
   if (std::abs(det) <
       epsilon) {  // lines are parallel, they could be collinear, but in that
-                  // case,  we dont care since the points will be inside
-                  //  the polygon and detected by pointInPolygon function
+                  // case,  we dont care since the points will be detected when
+                  // we check if other lines of the polygon intersect
 
     return false;
   }
