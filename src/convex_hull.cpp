@@ -148,13 +148,10 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
   double det = ax * by - ay * bx;
 
   // floating point error forces us to use a non zero, small epsilon
-  if (std::abs(det) <
-      epsilon) {  // lines are parallel, they could be collinear, but in that
-                  // case,  we dont care since the points will be detected when
-                  // we check if other lines of the polygon intersect
-
-    return false;
-  }
+  // lines are parallel, they could be collinear, but in that
+  // case,  we dont care since the points will be detected when
+  // we check if other lines of the polygon intersect
+  if (std::abs(det) < epsilon) return false;
 
   double t = (dx * by - dy * bx) / det;
   double u = (ax * dy - ay * dx) / det;
