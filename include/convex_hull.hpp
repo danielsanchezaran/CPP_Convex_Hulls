@@ -1,15 +1,16 @@
 // This code follows the Google C++ Style guide
-#ifndef CONVEX_HULL_HPP_
-#define CONVEX_HULL_HPP_
+#ifndef INCLUDE_CONVEX_HULL_HPP_
+#define INCLUDE_CONVEX_HULL_HPP_
 
 #include <assert.h>
 
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <json.hpp>
 #include <ostream>
 #include <vector>
+
+#include <json.hpp>
 
 struct Point {
  public:
@@ -68,8 +69,8 @@ struct Point {
 struct Line {
  public:
   Point p1, p2;
-  Line(Point p1_, Point p2_) : p1(p1_), p2(p2_){};
-  Line(){};
+  Line(Point &p1_, Point &p2_) : p1(p1_), p2(p2_) {}
+  Line() {}
   Line(const Line &other) = default;
   Line &operator=(const Line &other) = default;
 };
@@ -77,8 +78,9 @@ struct Line {
 struct Matrix {
  public:
   double x_00, x_01, x_10, x_11;
-  Matrix(){};
-  Matrix(Point P1, Point P2) : x_00(P1.x), x_01(P2.x), x_10(P1.y), x_11(P2.y){};
+  Matrix() {}
+  Matrix(const Point &P1, const Point &P2)
+      : x_00(P1.x), x_01(P2.x), x_10(P1.y), x_11(P2.y) {}
 
   Matrix(const Matrix &other) = default;
   Matrix &operator=(const Matrix &other) = default;
@@ -137,7 +139,7 @@ class ConvexHull {
    *https://en.wikipedia.org/wiki/Point_in_polygon to determine if a Point is
    *inside this Convex Hull
    **/
-  bool isPointInside(Point &P);
+  bool isPointInside(const Point &P);
 
  private:
   /**
@@ -158,11 +160,18 @@ using json = nlohmann::json;
 
 /**
   Reads a Json file with convexHull information and stores the data in a vector
-  of ConvexHull class \return vector of ConvexHull
-  **/
-std::vector<ConvexHull> convexHullsFromJson(json data);
+  of ConvexHull class
+  @param data: json object with convex hull data
+  @return vector of ConvexHull
+**/
+std::vector<ConvexHull> convexHullsFromJson(const json &data);
 
-json convexHullsToJson(std::vector<ConvexHull> c_hull_vector);
+/**
+ *Creates a json object with data from a vector of convexhulls
+ *@param c_hull_vector: Vector to put in Json object
+ *@return json object with the data
+ */
+json convexHullsToJson(const std::vector<ConvexHull> &c_hull_vector);
 
 /**
     This Function uses the ray-casting algorithm to decide whether the point is
@@ -174,7 +183,7 @@ json convexHullsToJson(std::vector<ConvexHull> c_hull_vector);
     @param P: The Point that is being tested.
     @return true or false
 */
-bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
+bool pointInPolygon(std::vector<Point> const &vertices, const Point P);
 
 /**
  * Check if two Line segments insertect
@@ -187,8 +196,8 @@ bool pointInPolygon(std::vector<Point> const &vertices, Point &P);
  *results to 0
  *@return true or false
  */
-bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
-                       double &epsilon);
+bool segmentsIntersect(Line *L1, Line *L2, Point *intersect_point,
+                       const double &epsilon);
 
 /**
  * Sorts a vector of Points CCW by setting one Point as "center", and checking
@@ -197,7 +206,7 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
  * "Center".
  * @param point_vector: Vector of points to sort CCW
  */
-void sortPointsCCW(std::vector<Point> &point_vector);
+void sortPointsCCW(std::vector<Point> *point_vector);
 
 /**
  * If two polygons intersect, returns a non-ordered list of vertices
@@ -207,8 +216,8 @@ void sortPointsCCW(std::vector<Point> &point_vector);
  * @param C2: Convex Hull to check for intersection.
  * @returns
  */
-std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1,
-                                                  ConvexHull &C2);
+std::vector<Point> getIntersectionPolygonVertices(ConvexHull *C1,
+                                                  ConvexHull *C2);
 
 /**
  * If two polygons intersect, stores the corresponding polygon created by the
@@ -218,8 +227,8 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1,
  * @param Intersection: Intersecting polygon (if it exists) data is stored here
  * @returns true or false, f the polygons intersect or not
  */
-bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2,
-                            ConvexHull &Intersection);
+bool getIntersectingPolygon(ConvexHull *C1, ConvexHull *C2,
+                            ConvexHull *Intersection);
 
 /**
  * Compute and find the vertices from each polygon/c. hull that is contained in
@@ -234,6 +243,6 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2,
  * @returns Vector of remaining polygons/C. Hulls.
  */
 std::vector<ConvexHull> eliminateOverlappingCHulls(
-    std::vector<ConvexHull> &input, double overlapping_percent);
+    std::vector<ConvexHull> *input, double overlapping_percent);
 
-#endif  //  CONVEX_HULL_HPP_
+#endif  //  INCLUDE_CONVEX_HULL_HPP_

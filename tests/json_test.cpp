@@ -1,6 +1,7 @@
-#include <convex_hull.hpp>
 #include <fstream>
 #include <iostream>
+
+#include <convex_hull.hpp>
 #include <json.hpp>
 
 using json = nlohmann::json;

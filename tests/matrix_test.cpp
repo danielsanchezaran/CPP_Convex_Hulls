@@ -1,5 +1,6 @@
-#include <convex_hull.hpp>
 #include <iostream>
+
+#include <convex_hull.hpp>
 
 int main() {
   Point p1(100, 40);

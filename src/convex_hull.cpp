@@ -47,7 +47,7 @@ double ConvexHull::getArea() {
 int ConvexHull::getNvertices() { return apex.size(); }
 int ConvexHull::getNSegments() { return line_segments.size(); }
 
-std::vector<ConvexHull> convexHullsFromJson(json data) {
+std::vector<ConvexHull> convexHullsFromJson(const json &data) {
   int n_hulls = data["convex hulls"].size();
   std::vector<ConvexHull> convex_hull_v;
   convex_hull_v.reserve(n_hulls);
@@ -70,7 +70,7 @@ std::vector<ConvexHull> convexHullsFromJson(json data) {
   return convex_hull_v;
 }
 
-json convexHullsToJson(std::vector<ConvexHull> c_hull_vector) {
+json convexHullsToJson(const std::vector<ConvexHull> &c_hull_vector) {
   // Create an array-like structure to hold all convex hulls data
   json convex_hull_array = json::array();
   for (auto convex_hull :
@@ -94,7 +94,9 @@ json convexHullsToJson(std::vector<ConvexHull> c_hull_vector) {
   return output;
 }
 
-bool ConvexHull::isPointInside(Point &P) { return pointInPolygon(apex, P); }
+bool ConvexHull::isPointInside(const Point &P) {
+  return pointInPolygon(apex, P);
+}
 
 void ConvexHull::set_apexes(std::vector<Point> const &apex_) {
   apex = apex_;
@@ -103,7 +105,7 @@ void ConvexHull::set_apexes(std::vector<Point> const &apex_) {
   computeLineSegments();
 }
 
-bool pointInPolygon(std::vector<Point> const &vertices, Point &P) {
+bool pointInPolygon(std::vector<Point> const &vertices, const Point P) {
   int n_vertices = vertices.size();
   int i, j;
   bool inside = false;
@@ -134,16 +136,16 @@ bool pointInPolygon(std::vector<Point> const &vertices, Point &P) {
   return inside;
 }
 
-bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
-                       double &epsilon) {
-  float ax = L1.p2.x - L1.p1.x;  // direction of line a
-  float ay = L1.p2.y - L1.p1.y;  // ax and ay as above
+bool segmentsIntersect(Line *L1, Line *L2, Point *intersect_point,
+                       const double &epsilon) {
+  float ax = L1->p2.x - L1->p1.x;  // direction of line a
+  float ay = L1->p2.y - L1->p1.y;  // ax and ay as above
 
-  float bx = L2.p1.x - L2.p2.x;  // direction of line b, reversed
-  float by = L2.p1.y - L2.p2.y;
+  float bx = L2->p1.x - L2->p2.x;  // direction of line b, reversed
+  float by = L2->p1.y - L2->p2.y;
 
-  float dx = L2.p1.x - L1.p1.x;  // right-hand side
-  float dy = L2.p1.y - L1.p1.y;
+  float dx = L2->p1.x - L1->p1.x;  // right-hand side
+  float dy = L2->p1.y - L1->p1.y;
 
   double det = ax * by - ay * bx;
 
@@ -161,31 +163,31 @@ bool segmentsIntersect(Line &L1, Line &L2, Point &intersect_point,
   if (intersect) {
     // If both lines intersect, we have the point by the equation P = P1 +
     // (P2-P1)*t or P = P3 + (P4-P3) * u
-    intersect_point = L1.p1 + (L1.p2 - L1.p1) * t;
+    *intersect_point = L1->p1 + (L1->p2 - L1->p1) * t;
   }
 
   return intersect;
 }
 
-std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1,
-                                                  ConvexHull &C2) {
+std::vector<Point> getIntersectionPolygonVertices(ConvexHull *C1,
+                                                  ConvexHull *C2) {
   std::vector<Point> intersectionVertices;
-  int n_vert_C1 = C1.getNvertices();
-  int n_vert_C2 = C2.getNvertices();
-  int n_segment_C1 = C1.getNSegments();
-  int n_segment_C2 = C2.getNSegments();
+  int n_vert_C1 = C1->getNvertices();
+  int n_vert_C2 = C2->getNvertices();
+  int n_segment_C1 = C1->getNSegments();
+  int n_segment_C2 = C2->getNSegments();
 
   intersectionVertices.reserve(n_vert_C1 + n_vert_C2);
   // Check which apexes of Convexhull1 (if any) are inside convexhull2
   for (int i = 0; i < n_vert_C1; ++i) {
-    if (C2.isPointInside(C1.apex[i])) {
-      intersectionVertices.push_back(C1.apex[i]);
+    if (C2->isPointInside(C1->apex[i])) {
+      intersectionVertices.push_back(C1->apex[i]);
     }
   }
   // Check which apexes of Convexhull2 (if any) are inside convexhull1
   for (int i = 0; i < n_vert_C2; ++i) {
-    if (C1.isPointInside(C2.apex[i])) {
-      intersectionVertices.push_back(C2.apex[i]);
+    if (C1->isPointInside(C2->apex[i])) {
+      intersectionVertices.push_back(C2->apex[i]);
     }
   }
   // Check if the line segments connecting each apex of each convexhull, happen
@@ -196,7 +198,7 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1,
       double eps = 0.00001;
 
       bool segments_intersect = segmentsIntersect(
-          C1.line_segments[i], C2.line_segments[j], Intersection, eps);
+          &C1->line_segments[i], &C2->line_segments[j], &Intersection, eps);
       if (segments_intersect) {
         // If the segments intersect, they create a Vertex for the intersection
         // polygon
@@ -207,22 +209,23 @@ std::vector<Point> getIntersectionPolygonVertices(ConvexHull &C1,
   return intersectionVertices;
 }
 
-void sortPointsCCW(std::vector<Point> &point_vector) {
-  Point center = point_vector[0];  //  We make a pivot to check angles against
+void sortPointsCCW(std::vector<Point> *point_vector) {
+  Point center =
+      point_vector->at(0);  //  We make a pivot to check angles against
 
   // sort all points by polar angle
-  for (Point &p : point_vector) {
+  for (Point &p : *point_vector) {
     double angle = center.get_angle(p);
     p.set_angle(angle);
   }
 
   // sort the points using overloaded < operator from the Point struct
   // this program sorts them counterclockwise;
-  std::sort(point_vector.begin(), point_vector.end());
+  std::sort(point_vector->begin(), point_vector->end());
 }
 
-bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2,
-                            ConvexHull &Intersection) {
+bool getIntersectingPolygon(ConvexHull *C1, ConvexHull *C2,
+                            ConvexHull *Intersection) {
   std::vector<Point> intersectionVertices =
       getIntersectionPolygonVertices(C1, C2);
 
@@ -231,37 +234,39 @@ bool getIntersectingPolygon(ConvexHull &C1, ConvexHull &C2,
 
   // Now we have the points that make the intersection of two convexhulls, we
   // need to organize them CCW
-  sortPointsCCW(intersectionVertices);
+  sortPointsCCW(&intersectionVertices);
   // Add Points to the C. Hull
-  Intersection.set_apexes(intersectionVertices);
+  Intersection->set_apexes(intersectionVertices);
   return true;
 }
 
 std::vector<ConvexHull> eliminateOverlappingCHulls(
-    std::vector<ConvexHull> &input, double overlapping_percent) {
+    std::vector<ConvexHull> *input, double overlapping_percent) {
   // Use a vector to keep track of which C Hulls should remain
-  std::vector<bool> remaining_convex_hulls(input.size(), true);
+  std::vector<bool> remaining_convex_hulls(input->size(), true);
   std::vector<ConvexHull> output;
-  output.reserve(input.size());
-  for (int i = 0; i < input.size() - 1; ++i) {
-    for (int j = i + 1; j < input.size(); ++j) {
+  output.reserve(input->size());
+  for (int i = 0; i < input->size() - 1; ++i) {
+    for (int j = i + 1; j < input->size(); ++j) {
       ConvexHull intersection;
       bool c_hulls_intersect =
-          getIntersectingPolygon(input[i], input[j], intersection);
+          getIntersectingPolygon(&input->at(i), &input->at(j), &intersection);
       // For each C. Hull check for overlapping with the remaining C. Hulls
       if (c_hulls_intersect) {
         // If the overlapping area is larger that the desired percent, tag the
         // index to be eliminated. this check is done for both C. Hulls
-        if (intersection.getArea() > overlapping_percent * input[i].getArea())
+        if (intersection.getArea() >
+            overlapping_percent * input->at(i).getArea())
           remaining_convex_hulls[i] = false;
-        if (intersection.getArea() > overlapping_percent * input[j].getArea())
+        if (intersection.getArea() >
+            overlapping_percent * input->at(j).getArea())
           remaining_convex_hulls[j] = false;
       }
     }
   }
   // Store the convex hulls that should remain, ignoring the rest.
   for (int i = 0; i < remaining_convex_hulls.size(); ++i) {
-    if (remaining_convex_hulls[i]) output.push_back(input[i]);
+    if (remaining_convex_hulls[i]) output.push_back(input->at(i));
   }
   return output;
 }

@@ -1,5 +1,5 @@
-#include <convex_hull.hpp>
 #include <iostream>
+#include <convex_hull.hpp>
 
 int main() {
   Point P1(8.64869, 17.23681);
@@ -12,7 +12,7 @@ int main() {
 
   Point intersect;
   double eps = 0.0001;
-  std::cout << "Intersect " << segmentsIntersect(L2, L1, intersect, eps)
+  std::cout << "Intersect " << segmentsIntersect(&L2, &L1, &intersect, eps)
             << "\n";
   std::cout << "point is " << intersect << "\n";
 }
