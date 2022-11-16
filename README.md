@@ -11,8 +11,8 @@ HOW TO COMPILE:
         3) cmake ../ 
         4) make
 
-    To get the desired result:
-        5) execute the app running ./app (on build folder), make sure the file titled "convex_hulls.json" is in the root directory of this project
+    To get the desired result (non overlapping convex hull json file):
+        5) execute the app running ./app "path/to/json/file". If you run the app by just typing ./app the program will search for a file called "convex_hulls.json" on a folder one level up the hierarchy of the executable, which is equivalent to running ./app ../convex_hulls.json
         6) a file called result_convex_hulls.json will be created on your build folder with the remaining C.Hulls as specified by Directions.pdf
 
 ![Example](./convex_polygon_intersection.png)
