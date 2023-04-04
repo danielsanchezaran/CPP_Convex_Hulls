@@ -142,9 +142,9 @@ class ConvexHull {
  private:
   /**
       * Area of convex polygon computed following this approach
-  https://byjus.com/maths/convex-polygon/
-      * We compute and add the area of the inner triangles of the c. hull to get
-  its total area. \return convex hull area (double)
+  https://byjus.com/maths/convex-polygon/ We compute and add the area of the
+  inner triangles of the c. hull to get its total area. \return convex hull area
+  (double)
   **/
   void computeArea();
   /**
