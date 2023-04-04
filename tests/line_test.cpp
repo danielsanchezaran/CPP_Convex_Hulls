@@ -1,6 +1,5 @@
-// This code follows the Google C++ Style guide
-#include <iostream>
 #include <convex_hull.hpp>
+#include <iostream>
 
 int main() {
   Point P1(8.64869, 17.23681);

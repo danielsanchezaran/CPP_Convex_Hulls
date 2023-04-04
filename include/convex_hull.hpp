@@ -1,4 +1,3 @@
-// This code follows the Google C++ Style guide
 #ifndef INCLUDE_CONVEX_HULL_HPP_
 #define INCLUDE_CONVEX_HULL_HPP_
 
@@ -7,10 +6,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <json.hpp>
 #include <ostream>
 #include <vector>
-
-#include <json.hpp>
 
 struct Point {
  public:

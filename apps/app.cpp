@@ -1,14 +1,12 @@
-// This code follows the Google C++ Style guide
+#include <convex_hull.hpp>
 #include <fstream>
 #include <iostream>
-
-#include <convex_hull.hpp>
 #include <json.hpp>
 
 using json = nlohmann::json;
 
 int main(int argc, char *argv[]) {
-  std::vector<std::string> args(argv+1, argv + argc);
+  std::vector<std::string> args(argv + 1, argv + argc);
   std::string filename("../convex_hulls.json");
   if (args.size() > 0) filename = args[0];
 
