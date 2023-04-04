@@ -2,6 +2,107 @@
 
 #include <gtest/gtest.h>
 
+// Point tests
+TEST(PointTest, DefaultConstructor) {
+  Point P;
+  EXPECT_DOUBLE_EQ(P.x, 0);
+  EXPECT_DOUBLE_EQ(P.y, 0);
+  EXPECT_DOUBLE_EQ(P.angle, 0);
+}
+
+TEST(PointTest, ConstructorWithParameters) {
+  Point P(1, 2);
+  EXPECT_DOUBLE_EQ(P.x, 1);
+  EXPECT_DOUBLE_EQ(P.y, 2);
+  EXPECT_DOUBLE_EQ(P.angle, std::atan2(2, 1));
+}
+
+TEST(PointTest, GetAngle) {
+  Point P1(1, 0);
+  Point P2(0, 1);
+  EXPECT_NEAR(P1.get_angle(P2), 3 * M_PI / 4, 1e-6);
+  EXPECT_NEAR(P2.get_angle(P1), -M_PI / 4, 1e-6);
+}
+
+TEST(PointTest, SetAngle) {
+  Point P;
+  P.set_angle(M_PI);
+  EXPECT_DOUBLE_EQ(P.angle, M_PI);
+}
+
+TEST(PointTest, ComputeAngle) {
+  Point P(1, 1);
+  P.computeAngle();
+  EXPECT_DOUBLE_EQ(P.angle, M_PI / 4);
+}
+
+TEST(PointTest, LessThanOperator) {
+  Point P1(1, 2);
+  Point P2(2, 1);
+  EXPECT_TRUE(P2 < P1);
+  EXPECT_FALSE(P1 < P2);
+}
+
+TEST(PointTest, MultiplicationOperator) {
+  Point P1(1, 2);
+  Point P2 = P1 * 2;
+  EXPECT_DOUBLE_EQ(P2.x, 2);
+  EXPECT_DOUBLE_EQ(P2.y, 4);
+}
+
+TEST(PointTest, AdditionOperator) {
+  Point P1(1, 2);
+  Point P2(2, 1);
+  Point P3 = P1 + P2;
+  EXPECT_DOUBLE_EQ(P3.x, 3);
+  EXPECT_DOUBLE_EQ(P3.y, 3);
+  EXPECT_DOUBLE_EQ(P3.angle, std::atan2(3, 3));
+}
+
+TEST(PointTest, SubtractionOperator) {
+  Point P1(1, 2);
+  Point P2(2, 1);
+  Point P3 = P1 - P2;
+  EXPECT_DOUBLE_EQ(P3.x, -1);
+  EXPECT_DOUBLE_EQ(P3.y, 1);
+  EXPECT_DOUBLE_EQ(P3.angle, std::atan2(1, -1));
+}
+
+// Matrix tests
+TEST(MatrixTest, DefaultConstructor) {
+  Matrix M;
+  EXPECT_DOUBLE_EQ(M.x_00, 0);
+  EXPECT_DOUBLE_EQ(M.x_01, 0);
+  EXPECT_DOUBLE_EQ(M.x_10, 0);
+  EXPECT_DOUBLE_EQ(M.x_11, 0);
+}
+
+TEST(MatrixTest, ConstructorWithParameters) {
+  Point P1(1, 2);
+  Point P2(2, 1);
+  Matrix M(P1, P2);
+  EXPECT_DOUBLE_EQ(M.x_00, 1);
+  EXPECT_DOUBLE_EQ(M.x_01, 2);
+  EXPECT_DOUBLE_EQ(M.x_10, 2);
+  EXPECT_DOUBLE_EQ(M.x_11, 1);
+}
+
+TEST(LineIntersectionTest, Intersection) {
+  Point P1(8.64869, 17.23681);
+  Point P2(7.05143, 16.39631);
+  Line L1(P1, P2);
+
+  Point P3(8.2447, 18.4155);
+  Point P4(8.0056, 15.5648);
+  Line L2(P3, P4);
+
+  Point intersect;
+  double eps = 0.0001;
+  EXPECT_TRUE(segmentsIntersect(&L2, &L1, &intersect, eps));
+  EXPECT_NEAR(intersect.x, 8.122619, 1e-6);
+  EXPECT_NEAR(intersect.y, 16.959984, 1e-6);
+}
+
 // Fixture for testing ConvexHull
 class ConvexHullTest : public ::testing::Test {
  protected:

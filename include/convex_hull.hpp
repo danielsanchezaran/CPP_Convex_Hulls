@@ -5,11 +5,11 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <json.hpp>
 #include <ostream>
 #include <vector>
-
 struct Point {
  public:
   double x, y, angle;
@@ -59,7 +59,7 @@ struct Point {
   Point &operator=(const Point &other) = default;
 
   friend std::ostream &operator<<(std::ostream &stream, const Point &P) {
-    stream << "(" << P.x << ", " << P.y << ")";
+    stream << "(" << std::setprecision(8) << P.x << ", " <<  std::setprecision(8)<< P.y << ")";
     return stream;
   }
 };
@@ -76,7 +76,7 @@ struct Line {
 struct Matrix {
  public:
   double x_00, x_01, x_10, x_11;
-  Matrix() {}
+  Matrix() : x_00(0.), x_01(0.), x_10(0.), x_11(0.) {}
   Matrix(const Point &P1, const Point &P2)
       : x_00(P1.x), x_01(P2.x), x_10(P1.y), x_11(P2.y) {}
 
