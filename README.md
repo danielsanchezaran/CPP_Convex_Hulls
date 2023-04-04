@@ -1,4 +1,15 @@
-NOTE: The code follows the Google C++ Style guide
+About this project:
+The goal of this project is to implement a Convex Hull Class without using 3rd party libraries (except for the Nlohman Json library).
+
+This Git repository provides functionality for processing and manipulating Convex Hulls data in JSON format. The code can parse a JSON file containing Convex Hulls data and eliminate overlapping Convex Hulls based on a user-defined overlap threshold. The resulting Convex Hulls are then written to a new JSON file.
+
+The main capabilities of the code include:
+
+    Parsing a JSON file containing Convex Hulls data.
+    Eliminating overlapping Convex Hulls based on a user-defined overlap threshold.
+    Writing the resulting Convex Hulls to a new JSON file.
+
+To use this code, a user can provide a JSON file containing Convex Hulls data as an input. Optionally, the user can also provide an overlap threshold to control the elimination of overlapping Convex Hulls. The resulting Convex Hulls will be written to a new JSON file, which can be further processed or used for visualization.
 
 HOW TO COMPILE:
     Requirements: 
