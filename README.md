@@ -1,4 +1,4 @@
-# Convex Hull Class
+# About this Project
 
 The goal of this project is to implement a Convex Hull Class without using 3rd party libraries (except for the Nlohman Json library).
 
